@@ -1,73 +1,34 @@
 function randomWordGenerator(){
-    var randomNum = Math.floor((Math.random() * 5) + 1);
+  var randomNum = Math.floor((Math.random() * 5) + 1);
 
-    var flarfFlag = flarfMode.getFlarf();
-    if (flarfFlag == true){
-      flarf = true;
-    } else {
-      flarf = false;
-    }
+  var flarfFlag = flarfMode.getFlarf();
+  if (flarfFlag == true){
+    flarf = true;
+  } else {
+    flarf = false;
+  }
 
-    // verb
-    if (randomNum == 1){
-      var requestStr = "/api/v1/words?part_of_speech=verb&flarf=" + flarf;
-      $.ajax({
-          type: "GET",
-          dataType: 'json',
-          url: requestStr,
-          success: function(data){
-            randomWordComplete(data);
-          }
-        });
-      }
-    // adjective
-    else if(randomNum == 2){
-      var requestStr = "/api/v1/words?part_of_speech=adjective&flarf=" + flarf;
-      $.ajax({
-          type: "GET",
-          dataType: 'json',
-          url: requestStr,
-          success: function(data){
-            randomWordComplete(data);
-          }
-        });
-      }
-    // noun
-    else if(randomNum == 3){
-      var requestStr = "/api/v1/words?part_of_speech=noun&flarf=" + flarf;
-      $.ajax({
-          type: "GET",
-          dataType: 'json',
-          url: requestStr,
-          success: function(data){
-            randomWordComplete(data);
-          }
-        });
-      }
-    else if(randomNum == 4) {
+  if (randomNum == 1){
+    var requestStr = "/api/v1/words?part_of_speech=verb&flarf=" + flarf;
+  } else if(randomNum == 2){
+    var requestStr = "/api/v1/words?part_of_speech=adjective&flarf=" + flarf;
+  } else if(randomNum == 3){
+    var requestStr = "/api/v1/words?part_of_speech=noun&flarf=" + flarf;
+  } else if(randomNum == 4){
     // flarf is forced to false for articles & prepositions
     var requestStr = "/api/v1/words?part_of_speech=article&flarf=false";
-    $.ajax({
-        type: "GET",
-        dataType: 'json',
-        url: requestStr,
-        success: function(data){
-          randomWordComplete(data);
-        }
-      });
-    }
-    else {
-    // flarf is forced to false for articles & prepositions
+  } else {
     var requestStr = "/api/v1/words?part_of_speech=preposition&flarf=false";
-    $.ajax({
-        type: "GET",
-        dataType: 'json',
-        url: requestStr,
-        success: function(data){
-          randomWordComplete(data);
-        }
-      });
+  };
+  
+  $.ajax({
+    type: "GET",
+    dataType: 'json',
+    url: requestStr,
+    success: function(data){
+      randomWordComplete(data);
     }
+  });
 }
 
 var magnetCounter = (function(){
@@ -79,8 +40,9 @@ var magnetCounter = (function(){
 
 function randomWordComplete(data) {
   var word = data[0].word;
+  var idNo = data[0].id;
   var magNumber = magnetCounter();
-  $('#words-container').prepend('<span class="magnet" id="magnet' + magNumber + '">' + word + '</span>');
+  $('#words-container').prepend('<span class="magnet" id="magnet' + magNumber + '" data="' + idNo + '">' + word + '</span>');
   $('#magnet'+magNumber).draggable({ containment: "wrapper" });
 }
 
@@ -97,7 +59,10 @@ function poemTitleConversion(title){
 }
 
 function startOver(){
-  $('#words-container').html("");
+  $('#words-container').empty();
+  if (( $('.poem-id').attr('id') != undefined )){
+    $('.poem-id').removeAttr('id');
+  }
 }
 
 function scrambleWords(){
@@ -132,30 +97,46 @@ var flarfMode = (function(){
    }
 })()
 
-// $(function() {
-//   $( "#set div" ).draggable({
-//     stack: "#set div",
-//       stop: function(event, ui) {
-//           var pos_x = ui.offset.left;
-//           var pos_y = ui.offset.top;
-//           var need = ui.helper.data("need");
+function collectPoemWords(){
+  var words = $('#words-container').children();
+  word_collection = [];
+  words.each(function( index, value ) {
+    var top = value.offsetTop;
+    var left = value.offsetLeft;
+    var word_id = value.getAttribute('data');
+    var word_properties = {top: top, left: left, word_id: word_id};
+    word_collection.push(word_properties);
+  });
+  return word_collection
+}
 
-//           //Do the ajax call to the server
-//           $.ajax({
-//               type: "POST",
-//               url: "your_php_script.php",
-//               data: { x: pos_x, y: pos_y, need_id: need}
-//             }).done(function( msg ) {
-//               alert( "Data Saved: " + msg );
-//             });
-//       }
-//   });
-// });
+function savePoem(){
+  if ( $('#poem-title') == undefined ){
+    var title = " ";
+  } else {
+    var title = $('#poem-title').text();
+  }
 
-// function savePoem(){
-  
+  var word_collection = collectPoemWords();
 
-// }
+  if ( $('.poem-id').attr('id') == undefined ){
+    var method = "POST";
+    var requestStr = "/api/v1/poems";
+  } else {
+    var poemId = $('.poem-id').attr('id')
+    var method = "PATCH";
+    var requestStr = "/api/v1/poems/" + poemId;
+  }
+
+  $.ajax({
+      type: method,
+      data: { title: title, words: word_collection },
+      url: requestStr,
+      success: function(data){
+        $('.poem-id').attr("id", data.id);
+      }
+    });
+}
 
 $('#random-word').click(randomWordGenerator);
 $('#scramble').click(scrambleWords);

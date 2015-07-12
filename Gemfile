@@ -63,6 +63,7 @@ group :development, :test do
   gem 'factory_girl'
   gem 'valid_attribute'
   gem 'shoulda-matchers', require: false
+  gem 'pry-rails'
 end
 
 group :test do

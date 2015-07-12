@@ -6,7 +6,9 @@
       <input type="button" class="btn" id="start-over" value="Start Over">
       <input type="button" class="btn" id="title" value="Title Your Poem"><br>
       <input type="button" class="btn" id="flarf" value="Toggle Flarf Mode!">
-      <%= button_to "Save Poem", new_poem_path, class: "btn", id: "save-poem" %>
+      <% if current_user %>
+        <%= button_to "Save Poem", new_poem_path, class: "btn", id: "save-poem" %>
+      <% end %>
         <a href="#" class="tooltip">
         <span>
         <%= image_tag('callout.gif') %>
@@ -22,5 +24,7 @@
     <div id="words-container">
       <!--Freshly generated words go in here :) -->
     </div>
-  </div><!--close words div-->
-</div><!--close wrapper-->
+  </div>
+</div>
+
+<div class="poem-id"></div>

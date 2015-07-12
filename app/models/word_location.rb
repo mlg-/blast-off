@@ -1,6 +1,6 @@
 class WordLocation < ActiveRecord::Base
-  has_many :words
-  has_many :poems
+  belongs_to :poem
+  has_one :word
 
   validates :word_id, presence: true
   validates :poem_id, presence: true
