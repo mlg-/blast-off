@@ -30,6 +30,21 @@ module API
         end
       end
 
+      def show
+        @poem = Poem.find(params[:id])
+        @word_locations = @poem.word_locations
+        @words_and_locations = []
+        @word_locations.each do |word_location|
+          word_hash = {}
+          word_hash[:word] = Word.find(word_location[:word_id]).word
+          word_hash[:id] = word_location[:word_id]
+          word_hash[:x_position] = word_location[:x_position]
+          word_hash[:y_position] = word_location[:y_position]
+          @words_and_locations << word_hash
+        end
+        render json: {words: @words_and_locations}
+      end
+
       protected
 
       def poem_params
