@@ -101,8 +101,8 @@ function collectPoemWords(){
   var words = $('#words-container').children();
   word_collection = [];
   words.each(function( index, value ) {
-    var top = $(value).offset(top);
-    var left = $(value).offset(left);
+    var top = $(value).offset().top;
+    var left = $(value).offset().left;
     var word_id = value.getAttribute('data');
     var word_properties = {top: top, left: left, word_id: word_id};
     word_collection.push(word_properties);
@@ -170,8 +170,6 @@ function loadPoemsForShowPage(){
     });
   }
 }
-
-
 
 loadPoemsForShowPage();
 $('#random-word').click(randomWordGenerator);
