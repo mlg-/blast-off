@@ -20,7 +20,7 @@ function randomWordGenerator(){
   } else {
     var requestStr = "/api/v1/words?part_of_speech=preposition&flarf=false";
   };
-  
+
   $.ajax({
     type: "GET",
     dataType: 'json',
@@ -43,7 +43,7 @@ function randomWordComplete(data) {
   var idNo = data[0].id;
   var magNumber = magnetCounter();
   $('#words-container').prepend('<span class="magnet" id="magnet' + magNumber + '" data="' + idNo + '">' + word + '</span>');
-  $('#magnet'+magNumber).draggable({ containment: "wrapper" });
+  $('#magnet'+magNumber).draggable({ containment: "words-container" });
 }
 
 function poemTitle(){
@@ -101,8 +101,8 @@ function collectPoemWords(){
   var words = $('#words-container').children();
   word_collection = [];
   words.each(function( index, value ) {
-    var top = value.offsetTop;
-    var left = value.offsetLeft;
+    var top = $(value).offset(top);
+    var left = $(value).offset(left);
     var word_id = value.getAttribute('data');
     var word_properties = {top: top, left: left, word_id: word_id};
     word_collection.push(word_properties);
@@ -138,6 +138,42 @@ function savePoem(){
     });
 }
 
+function placeExistingWordMagnet(word){
+  var wordText = word.word;
+  var idNo = word.id;
+  var magNumber = magnetCounter();
+  $('#words-container').prepend('<span class="magnet" id="magnet' + magNumber +
+                                 '" data="' + idNo + '">' + wordText + '</span>');
+  $('#magnet'+magNumber).draggable({ containment: "words-container" });
+  $('#magnet'+magNumber).offset({ top: word.y_position, left: word.x_position});
+}
+
+// {"words":[{"word":{"id":3224,"word":"outta","part_of_speech":"preposition","flarf":false},"id":3224,"x_position"
+// :176,"y_position":164},{"word":{"id":3231,"word":"a","part_of_speech":"article","flarf":false},"id":3231
+// ,"x_position":141,"y_position":22},{"word":{"id":1414,"word":"remanded","part_of_speech":"verb","flarf"
+// :false},"id":1414,"x_position":143,"y_position":66}]}
+
+function loadPoemsForShowPage(){
+  if ($('.poem-id').text() == "Show Page"){
+    var poemId = $('.poem-id').attr('id')
+    $.ajax({
+      type: "GET",
+      url: "/api/v1/poems/" + poemId,
+      success: function(data){
+        if (data.words.length > 0){
+          var words_array = data.words;
+          for(i = 0; i < words_array.length; i++){
+            placeExistingWordMagnet(words_array[i]);
+          }
+        }
+      }
+    });
+  }
+}
+
+
+
+loadPoemsForShowPage();
 $('#random-word').click(randomWordGenerator);
 $('#scramble').click(scrambleWords);
 $('#start-over').click(startOver);

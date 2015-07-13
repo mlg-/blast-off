@@ -1,0 +1,30 @@
+<div id="wrapper">
+  <div class="heading-box">
+    <h1>Magnetic Poetry</h1>
+      <input type="button" class="btn" id="random-word" value="New Word">
+      <input type="button" class="btn" id="scramble" value="Scramble!">
+      <input type="button" class="btn" id="start-over" value="Start Over">
+      <input type="button" class="btn" id="title" value="Title Your Poem"><br>
+      <input type="button" class="btn" id="flarf" value="Toggle Flarf Mode!">
+      <% if current_user %>
+        <%= button_to "Update Poem", "/", class: "btn", id: "save-poem" %>
+      <% end %>
+        <a href="#" class="tooltip">
+        <span>
+        <%= image_tag('callout.gif') %>
+        <strong>What Is Flarf Mode?</strong><br>
+        <p>Flarf is an avante garde poetic style. In this mode,
+        new words generated may not have an official dictionary definition, and will be more likely to have a low frequency of use in written English.
+        Words already generated are unaffected when flarf mode is engaged mid-poem.</p>
+       </span>
+      </a>
+  </div>
+
+  <div id="words">
+    <div id="words-container">
+      <!--Freshly generated words go in here :) -->
+    </div>
+  </div>
+</div>
+
+<div class="poem-id" id="<%= @poem.id %>">Show Page</div>
